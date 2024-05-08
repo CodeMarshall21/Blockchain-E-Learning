@@ -13,7 +13,14 @@ async function main() {
 
   await lock.waitForDeployment();
 
-  console.log("Deployed ");
+  console.log(
+    `Lock with ETH and unlock timestamp deployed to ${lock.target}`
+  );
+  const Transactions = await hre.ethers.getContractFactory("Transactions");
+  const transactions = await Transactions.deploy({
+    gasPrice: hre.ethers.utils.parseUnits("10", "gwei"),
+    gasLimit: 3000000, // Adjust the gas limit as needed
+  });
 }
 
 // We recommend this pattern to be able to use async/await everywhere

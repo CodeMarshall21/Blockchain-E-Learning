@@ -34,7 +34,7 @@ contract Contract {
     event registerNewUserEvent(address,string,uint,string);
 
     // Creating a Course Provider account
-    address private provider = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
+    address private provider = 0x656b68010E9F62b230a20AC7846C5b144344DB34;
 
     // Add user
     function registerNewUser(string memory userName) external returns(string memory)  {

@@ -31,7 +31,7 @@ const LoginForm = ({ contract,account,onCloseForm}) => {
       }
       const isAdmin_ = await contract.methods.checkAdmin().call({from : account});
       const verify = await contract.methods.Login().call({from : account});
-      console.log("VErify : ",verify);
+      console.log("VErify : ",verify);  
       setIsAdmin(isAdmin_);
       console.log("out:",isAdmin_)
       if(isAdmin_){
@@ -61,6 +61,10 @@ const LoginForm = ({ contract,account,onCloseForm}) => {
      
     } catch (error) {
       console.error(error);
+      console.error('Error occurred:', error);
+      console.log('Contract:', contract);
+      console.log('Account:', account);
+
     }
     setUserName("");
     // console.log("Admin",isAdmin);
@@ -71,6 +75,7 @@ const LoginForm = ({ contract,account,onCloseForm}) => {
     onCloseForm();
   };
    console.log("outfun:",isAdmin);
+   
 
   return (
     <>

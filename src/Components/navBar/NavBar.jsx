@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import './navBar.css';
 import LoginForm from '../Login/loginForm';
 import { Link } from 'react-router-dom';
-
+import Web3 from "web3";
+import { ABI,contractaddress } from '../Abi';
 const Navbar = ({ contract, account }) => {
   const [isNavActive, setNavActive] = useState(false);
   const [isLoginFormVisible, setLoginFormVisible] = useState(false);
@@ -24,14 +25,21 @@ const Navbar = ({ contract, account }) => {
 
   const profile = useCallback(async () => {
     try {
-      if (!contract) {
-        console.log('Contract not initialized.');
+      if (!contract || !account) {
+        console.log('Contract or account not initialized.');
         return;
       }
-
+      const web3Instance = new Web3(window.ethereum);
+      const contractInstance = new web3Instance.eth.Contract(
+        ABI,
+        contractaddress
+    );
       const _userName = await contract.methods.displayUserProfile().call({ from: account });
+      console.log(_userName);
       const isAdmin_ = await contract.methods.checkAdmin().call({ from: account });
+      console.log(isAdmin_);
       const verify = await contract.methods.Login().call({ from: account });
+      console.log(verify);
 
       if (verify) {
         setSigninButton('Log In');
@@ -83,6 +91,11 @@ const Navbar = ({ contract, account }) => {
         <div className="pt-navbar-nav">
         <Link to="/contact">
             <span title="Contact Us">Contact</span>
+          </Link>
+        </div>
+        <div className="pt-navbar-nav">
+        <Link to="/leaderboard">
+            <span title="leaderboard">LeaderBoard</span>
           </Link>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import "./loginCards.css"
 import Web3 from 'web3';
 
@@ -55,13 +55,15 @@ function Logincards() {
   
       // You can also send transactions using the web3 instance, for example:
     }
+    useEffect(() => {
+      connectToMetaMask();
+    }, []);
   
     async function transfer() {
       if (!web3) {
         console.log('Web3 instance not available. Connect to Logincards first.');
         return;
       }
-    
       const valueInEther = '100'; // Change this to a smaller value, like '0.001'
       const valueInWei = web3.utils.toWei(valueInEther, 'ether');
     

@@ -36,6 +36,7 @@ function Card({ card }) {
     await window.ethereum.request({ method: 'eth_requestAccounts' });
 
     // Create a Web3 instance using the MetaMask provider
+    
     const web3Instance = new Web3(window.ethereum);
     setWeb3(web3Instance);
 

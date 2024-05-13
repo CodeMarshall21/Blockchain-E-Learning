@@ -4,7 +4,7 @@ import LoginForm from '../Login/loginForm';
 import { Link } from 'react-router-dom';
 import Web3 from "web3";
 import { ABI,contractaddress } from '../Abi';
-const Navbar = ({ contract, account }) => {
+const Navbar = ({ contract, account, toggleLeaderboard }) => {
   const [isNavActive, setNavActive] = useState(false);
   const [isLoginFormVisible, setLoginFormVisible] = useState(false);
   const [user, setUser] = useState('Unknown');
@@ -18,6 +18,10 @@ const Navbar = ({ contract, account }) => {
     setLoginFormVisible(true);
 
   }, []);
+
+  const handleLeaderboardClick = useCallback(() => {
+    toggleLeaderboard(); // Call the function to toggle leaderboard visibility
+  }, [toggleLeaderboard]);
 
   const handleCloseLoginForm = useCallback(() => {
     setLoginFormVisible(false);
@@ -94,7 +98,7 @@ const Navbar = ({ contract, account }) => {
           </Link>
         </div>
         <div className="pt-navbar-nav">
-        <Link to="/leaderboard">
+        <Link to="/leaderboard" onClick={handleLeaderboardClick}>
             <span title="leaderboard">LeaderBoard</span>
           </Link>
         </div>

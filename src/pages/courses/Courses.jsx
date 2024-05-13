@@ -3,13 +3,13 @@ import './courses.css';
 import Web3 from 'web3';
 import Navbar from '../../Components/navBar/NavBar';
 import VideoModal from './VideoModal';
-
+import Leaderboard from '../leaderboard/Leaderboard';
 
 function Card({ card ,contract,account,coursetransaction,updateLeaderboard}) {
   const [address, setAddress] = useState('');
   const [web3, setWeb3] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
+  
   const [coursetransactionComplete, setCourseTransactionComplete] = useState(false);
 
   useEffect(() => {
@@ -129,6 +129,7 @@ function Courses({ contract, account }) {
   const [courses, setCourses] = useState([]);
   const [coursetransactionComplete, setTransactionComplete] = useState(false);
   const [leaderboardData, setLeaderboardData] = useState([]);
+  const [leaderboardVisible,setLeaderboardVisible] = useState(false);
   const [newCardData, setNewCardData] = useState({
     id: '',
     imgsrc: '',
@@ -188,6 +189,9 @@ function Courses({ contract, account }) {
     setNewCardData({ ...newCardData, [name]: value });
   };
 
+  const toggleLeaderboard = () =>{
+    setLeaderboardVisible(prevVisible =>!prevVisible);
+  }
   useEffect(() => {
 
     async function checkingAdmin() {
@@ -209,12 +213,20 @@ function Courses({ contract, account }) {
     <>
       <Navbar contract={contract} account={account} />
       <div className='cardcontainer'>
-        {courses.map((course) => (
+        {/* {courses.map((course) => (
          
          <>{console.log(course)}
           <Card key={course.id} contract={contract} account={account} card={course} coursetransaction={coursetransactionComplete} />
           </>
-        ))}
+        ))} */}
+        {courses.length > 0 ? (
+          courses.map((course) => (
+            <Card key={course.id} contract={contract} account={account} card={course} coursetransaction={coursetransactionComplete} />
+          ))
+        ) : (
+          <p>Loading...</p>
+        )}
+
         {admin ? (
           <div className='new-card-form'>
             <h2>Add a New Course</h2>
@@ -281,6 +293,13 @@ function Courses({ contract, account }) {
           <h1></h1>
         )}
       </div>
+      {/* <Leaderboard leaderboardData={leaderboardData} />  */}
+      {/* {leaderboardData ? (
+      <Leaderboard leaderboardData={leaderboardData} />
+        ) : (
+          <p>No leaderboard data available.</p>
+        )} */}
+        {leaderboardVisible && <Leaderboard leaderboardData={leaderboardData}/>}
     </>
   );
 }

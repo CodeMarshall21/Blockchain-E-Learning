@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import './courses.css';
-import Web3 from 'web3';
-import Navbar from '../../Components/navBar/NavBar';
-import VideoModal from './VideoModal';
-import Leaderboard from '../leaderboard/Leaderboard';
+import React, { useState, useEffect } from "react";
+import "./courses.css";
+import Web3 from "web3";
+import Navbar from "../../Components/navBar/NavBar";
+import VideoModal from "./VideoModal";
 
-function Card({ card ,contract,account,coursetransaction,updateLeaderboard}) {
-  const [address, setAddress] = useState('');
+function Card({ card, contract, account, coursetransaction }) {
+  const [address, setAddress] = useState("");
   const [web3, setWeb3] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  
-  const [coursetransactionComplete, setCourseTransactionComplete] = useState(false);
+
+  const [coursetransactionComplete, setCourseTransactionComplete] =
+    useState(false);
 
   useEffect(() => {
     async function fetchCourseStatus() {
       try {
-        const hasPurchased = await contract.methods.hasPurchasedCourse(account, card.id).call({ from: account });
-        console.log("HI")
+        const hasPurchased = await contract.methods
+          .hasPurchasedCourse(account, card.id)
+          .call({ from: account });
+        console.log("HI");
         setCourseTransactionComplete(hasPurchased);
       } catch (error) {
-        console.error('Error fetching course status:', error);
+        console.error("Error fetching course status:", error);
       }
     }
 
     fetchCourseStatus();
   }, [contract, account, card.id]);
-
-
 
   function handleStartLearning() {
     setShowModal(true);
@@ -36,90 +36,98 @@ function Card({ card ,contract,account,coursetransaction,updateLeaderboard}) {
   }
 
   async function connectToMetaMask() {
-    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    await window.ethereum.request({ method: "eth_requestAccounts" });
 
     const web3Instance = new Web3(window.ethereum);
     setWeb3(web3Instance);
     const accounts = await web3Instance.eth.getAccounts();
     const connectedAddress = accounts[0];
     setAddress(connectedAddress);
-    alert('Connected to MetaMask with address: ' + connectedAddress);
+    alert("Connected to MetaMask with address: " + connectedAddress);
 
     // You can also send transactions using the web3 instance, for example:
   }
-  useEffect(() => {
-    connectToMetaMask();
-  }, []);
 
   async function transfer(price, courseId) {
     if (!web3) {
-      console.log('Web3 instance not available. Connect to Logincards first.');
+      console.log("Web3 instance not available. Connect to Logincards first.");
       return;
     }
 
     const valueInEther = price; // Change this to a smaller value, like '0.001'
-    const valueInWei = web3.utils.toWei(valueInEther.toString(), 'ether');
+    const valueInWei = web3.utils.toWei(valueInEther.toString(), "ether");
     const transaction = {
       from: address,
-      to: '0xb4f64431dE4D4F5FEE5FD2842569a97865f882Ea',
+      to: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
       value: valueInWei,
-      gasPrice: '20000000000', // Adjust the gas price as needed
-      gas: '50000',
     };
 
     try {
       const response = await web3.eth.sendTransaction(transaction);
-      console.log('Transaction sent:', response);
-      console.log('Done');
+      console.log("Transaction sent:", response);
+      console.log("Done");
 
-    // After successful transaction, add the course to the contract for the user
-    await contract.methods.addPurchasedCourse(courseId).send({ from: account });
-    // Set transaction status to true after the transaction is complete
-    setCourseTransactionComplete(true);
-    updateLeaderboard(card.id);
+      // After successful transaction, add the course to the contract for the user
+      await contract.methods
+        .addPurchasedCourse(courseId)
+        .send({ from: account });
+      // Set transaction status to true after the transaction is complete
+      setCourseTransactionComplete(true);
     } catch (error) {
-      console.error('Error sending transaction:', error.message);
+      console.error("Error sending transaction:", error.message);
     }
   }
 
   return (
     <>
-    <div className='ctn'>
-      <div className='flip-card' key={card.id}>
-        <div className='flip-card-inner'>
-          <div className='flip-card-front'>
-            <div className='card'>
-              <img className='card-img-top' src={card.imgsrc} alt='CardImage cap' />
-              <div className='card-body'>
-                <h3 className='card-title'>{card.title}</h3>
-                <p className='card-descrip'>{card.descrip}</p>
+      <div className="ctn">
+        <div className="flip-card" key={card.id}>
+          <div className="flip-card-inner">
+            <div className="flip-card-front">
+              <div className="card">
+                <img
+                  className="card-img-top"
+                  src={card.imgsrc}
+                  alt="CardImage cap"
+                />
+                <div className="card-body">
+                  <h3 className="card-title">{card.title}</h3>
+                  <p className="card-descrip">{card.descrip}</p>
+                </div>
               </div>
             </div>
-          </div>
-          <div className='flip-card-back'>
-            <div className='card'>
-              {coursetransactionComplete ? (
-                <button className='btn btn-3' onClick={handleStartLearning}>
-                  Start learning
-                </button>
-              ) : (
-                <>
-                  <button className='btn btn-1' onClick={connectToMetaMask}>
-                    Connect to MetaMask
+            <div className="flip-card-back">
+              <div className="card">
+                {coursetransactionComplete ? (
+                  <button className="btn btn-3" onClick={handleStartLearning}>
+                    Start learning
                   </button>
-                  {console.log(card)}
-                  <button className='btn btn-2' onClick={() => transfer(card.price,card.id)}>
-                    Buy @ {parseInt(card.price)} ETH
-                  </button>
-                </>
-              )}
+                ) : (
+                  <>
+                    <button className="btn btn-1" onClick={connectToMetaMask}>
+                      Connect to MetaMask
+                    </button>
+                    {console.log(card)}
+                    <button
+                      className="btn btn-2"
+                      onClick={() => transfer(card.price, card.id)}
+                    >
+                      Buy @ {parseInt(card.price)} ETH
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    {showModal && <VideoModal videourl={card.videourl} onClose={handleCloseModal} coursename={card.title} />}
-
+      {showModal && (
+        <VideoModal
+          videourl={card.videourl}
+          onClose={handleCloseModal}
+          coursename={card.title}
+        />
+      )}
     </>
   );
 }
@@ -128,36 +136,26 @@ function Courses({ contract, account }) {
   const [admin, setAdmin] = useState(false);
   const [courses, setCourses] = useState([]);
   const [coursetransactionComplete, setTransactionComplete] = useState(false);
-  const [leaderboardData, setLeaderboardData] = useState([]);
-  const [leaderboardVisible,setLeaderboardVisible] = useState(false);
-  const [newCardData, setNewCardData] = useState({
-    id: '',
-    imgsrc: '',
-    title: '',
-    descrip: '',
-    price: '',
-    videourl: '',
-  });
 
+  const [newCardData, setNewCardData] = useState({
+    id: "",
+    imgsrc: "",
+    title: "",
+    descrip: "",
+    price: "",
+    videourl: "",
+  });
 
   // Function to fetch courses from the contract
   async function fetchCourses() {
     try {
-      const courseData = await contract.methods.displayCourses().call({ from: account });
+      const courseData = await contract.methods
+        .displayCourses()
+        .call({ from: account });
       setCourses(courseData);
-      console.log("courseData",courseData)
+      console.log("courseData", courseData);
     } catch (error) {
-      console.error('Error fetching courses:', error);
-    }
-  }
-  // Function to update leaderboard data after purchasing a course
-  async function updateLeaderboard(courseId) {
-    try {
-      // Fetch the updated leaderboard data from the contract
-      const updatedLeaderboardData = await contract.methods.updateLeaderboard(courseId).call({ from: account });
-      setLeaderboardData(updatedLeaderboardData);
-    } catch (error) {
-      console.error('Error updating leaderboard:', error);
+      console.error("Error fetching courses:", error);
     }
   }
 
@@ -175,11 +173,10 @@ function Courses({ contract, account }) {
         )
         .send({ from: account });
 
-      console.log('Course added:', response);
-          setCourses([...courses, newCourse]);
-
+      console.log("Course added:", response);
+      setCourses([...courses, newCourse]);
     } catch (error) {
-      console.error('Error adding course:', error);
+      console.error("Error adding course:", error);
     }
   }
 
@@ -189,46 +186,56 @@ function Courses({ contract, account }) {
     setNewCardData({ ...newCardData, [name]: value });
   };
 
-  const toggleLeaderboard = () =>{
-    setLeaderboardVisible(prevVisible =>!prevVisible);
-  }
   useEffect(() => {
-
     async function checkingAdmin() {
       try {
         const res = await contract.methods.checkAdmin().call({ from: account });
-        console.log("contract:",contract)
-        console.log("admin:",res)
+        console.log("contract:", contract);
+        console.log("admin:", res);
         setAdmin(res);
       } catch (error) {
-        console.error('Error checking admin:', error);
+        console.error("Error checking admin:", error);
       }
     }
 
     checkingAdmin();
     fetchCourses();
   }, [contract, account]);
+  const [quizQuestions, setQuizQuestions] = useState([]);
+  const [question, setQuestion] = useState("");
+  const [options, setOptions] = useState(["", "", "", ""]);
+  const [correctAnswer, setCorrectAnswer] = useState("");
+  const [showQuizModal, setShowQuizModal] = useState(false);
 
+  const addQuestion = () => {
+    const newQuestion = {
+      question,
+      options,
+      correctAnswer,
+    };
+    setQuizQuestions([...quizQuestions, newQuestion]);
+    setQuestion("");
+    setOptions(["", "", "", ""]);
+    setCorrectAnswer("");
+  };
   return (
     <>
       <Navbar contract={contract} account={account} />
-      <div className='cardcontainer'>
-        {/* {courses.map((course) => (
-         
-         <>{console.log(course)}
-          <Card key={course.id} contract={contract} account={account} card={course} coursetransaction={coursetransactionComplete} />
+      <div className="cardcontainer">
+        {courses.map((course) => (
+          <>
+            {console.log(course)}
+            <Card
+              key={course.id}
+              contract={contract}
+              account={account}
+              card={course}
+              coursetransaction={coursetransactionComplete}
+            />
           </>
-        ))} */}
-        {courses.length > 0 ? (
-          courses.map((course) => (
-            <Card key={course.id} contract={contract} account={account} card={course} coursetransaction={coursetransactionComplete} />
-          ))
-        ) : (
-          <p>Loading...</p>
-        )}
-
+        ))}
         {admin ? (
-          <div className='new-card-form'>
+          <div className="new-card-form">
             <h2>Add a New Course</h2>
             <form
               onSubmit={(e) => {
@@ -244,62 +251,116 @@ function Courses({ contract, account }) {
                 addCourse(newCourse);
               }}
             >
-          <input
-            type='number'
-            name='id'
-            placeholder='ID'
-            value={newCardData.id}
-            onChange={handleInputChange}
-          />
-          <input
-            type='descrip'
-            name='imgsrc'
-            placeholder='Image URL'
-            value={newCardData.imgsrc}
-            onChange={handleInputChange}
-          />
-          <input
-            type='descrip'
-            name='title'
-            placeholder='Title'
-            value={newCardData.title}
-            onChange={handleInputChange}
-          />
-          <input
-            type='descrip'
-            name='descrip'
-            placeholder='descrip'
-            value={newCardData.descrip}
-            onChange={handleInputChange}
-          />
-          <input
-            type='number'
-            name='price'
-            placeholder='Price'
-            value={newCardData.price}
-            onChange={handleInputChange}
-          />
-          <input
-            type='descrip'
-            name='videourl'
-            placeholder='Video URL'
-            value={newCardData.videourl}
-            onChange={handleInputChange}
-          />
-          <button type='submit'>Add Card</button>
+              <input
+                type="number"
+                name="id"
+                placeholder="ID"
+                value={newCardData.id}
+                onChange={handleInputChange}
+              />
+              <input
+                type="descrip"
+                name="imgsrc"
+                placeholder="Image URL"
+                value={newCardData.imgsrc}
+                onChange={handleInputChange}
+              />
+              <input
+                type="descrip"
+                name="title"
+                placeholder="Title"
+                value={newCardData.title}
+                onChange={handleInputChange}
+              />
+              <input
+                type="descrip"
+                name="descrip"
+                placeholder="descrip"
+                value={newCardData.descrip}
+                onChange={handleInputChange}
+              />
+              <input
+                type="number"
+                name="price"
+                placeholder="Price"
+                value={newCardData.price}
+                onChange={handleInputChange}
+              />
+              <input
+                type="descrip"
+                name="videourl"
+                placeholder="Video URL"
+                value={newCardData.videourl}
+                onChange={handleInputChange}
+              />
+              <button type="button" onClick={() => setShowQuizModal(true)}>
+                Create Quiz
+              </button>
+
+              <button type="submit">Add Card</button>
+              <div
+                className="modal"
+                style={{ display: showQuizModal ? "block" : "none" }}
+              >
+                <div className="modal-content">
+                  <span
+                    className="close"
+                    onClick={() => setShowQuizModal(false)}
+                  >
+                    &times;
+                  </span>
+                  <label>Question:</label>
+                  <input
+                    type="text"
+                    value={question}
+                    onChange={(e) => setQuestion(e.target.value)}
+                  />
+                  <label>Options:</label>
+                  {options.map((option, index) => (
+                    <input
+                      key={index}
+                      type="text"
+                      value={option}
+                      onChange={(e) => {
+                        const newOptions = [...options];
+                        newOptions[index] = e.target.value;
+                        setOptions(newOptions);
+                      }}
+                    />
+                  ))}
+                  <label>Correct Answer:</label>
+                  <input
+                    type="text"
+                    value={correctAnswer}
+                    onChange={(e) => setCorrectAnswer(e.target.value)}
+                  />
+                  <button type="button" onClick={addQuestion}>
+                    Add Question
+                  </button>
+                </div>
+              </div>
+              {/* Display added questions */}
+              <div className="quiz-questions">
+                {quizQuestions.map((q, index) => (
+                  <div key={index} className="question-card">
+                    <strong>Question:</strong> {q.question}
+                    <br />
+                    <strong>Options:</strong>
+                    <ul>
+                      {q.options.map((option, idx) => (
+                        <li key={idx}>{option}</li>
+                      ))}
+                    </ul>
+                    <strong>Correct Answer:</strong> {q.correctAnswer}
+                  </div>
+                ))}
+              </div>
             </form>
           </div>
         ) : (
           <h1></h1>
         )}
       </div>
-      {/* <Leaderboard leaderboardData={leaderboardData} />  */}
-      {/* {leaderboardData ? (
-      <Leaderboard leaderboardData={leaderboardData} />
-        ) : (
-          <p>No leaderboard data available.</p>
-        )} */}
-        {leaderboardVisible && <Leaderboard leaderboardData={leaderboardData}/>}
     </>
   );
 }
